@@ -2,6 +2,12 @@ require('dotenv').config();
 
 const express = require('express');
 
+// Importation helmet
+const helmet = require('helmet');
+
+// Importation express rate limit
+const rateLimit = require('express-rate-limit');
+
 // Importation mongoose
 const mongoose = require('mongoose');
 
@@ -26,6 +32,18 @@ mongoose
   .catch(() => console.log('Connexion à MongoDB échouée !'));
 
 // Middleware général
+
+app.use(helmet());
+
+app.use(
+  rateLimit({
+    windowMs: 24 * 60 * 60 * 1000, // durée de 24 heures en milliseconds
+    max: 50,
+    message: 'Vous avez dépassé la limite de requête ! ',
+    headers: true,
+  })
+);
+
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader(
@@ -39,9 +57,9 @@ app.use((req, res, next) => {
   next();
 });
 
-// Middleware utilisant une méthode de bodyParser pour transformer la requête en json
-
+// Method permettant de définir les requêtes objet comme des objets JSON
 app.use(express.json());
+
 // Indication à Express pour gérer la ressource image de manière statique
 app.use('/images', express.static(path.join(__dirname, 'images')));
 
