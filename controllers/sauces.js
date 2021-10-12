@@ -12,7 +12,7 @@ exports.createSauce = (req, res, next) => {
   const sauce = new Sauce({
     // Opérateur spread permet la copie de tous les éléments de la req.body
     ...sauceObject,
-    // URL complète de l'image
+    // URL complète de l'image car la requête ne contient que filename
     imageUrl: `${req.protocol}://${req.get('host')}/images/${
       req.file.filename
     }`,
@@ -56,7 +56,8 @@ exports.deleteSauce = (req, res, next) => {
     .then((sauce) => {
       // Séparation du nom de fichier car nous savons que l'URL contient un segment /images/
       const filename = sauce.imageUrl.split('/images')[1];
-      // Appel de la fonction unlink pour supprimer le fichier avec l'argument correspondant au chemin du fichier et un callback inidquant ce qu'il faut faire une fois le fichier supprimé
+      // Appel de la fonction unlink pour supprimer le fichier avec l'argument correspondant au chemin du fichier et un callback 
+      // indiquant ce qu'il faut faire une fois le fichier supprimé
       fs.unlink(`images/${filename}`, () => {
         // Méthode deleteOne pour supprimer l'objet correspondant en BDD
         Sauce.deleteOne({ _id: req.params.id })
